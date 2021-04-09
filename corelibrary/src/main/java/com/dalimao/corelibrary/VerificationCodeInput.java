@@ -25,12 +25,8 @@ import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-
-
-
 
 
 public class VerificationCodeInput extends ViewGroup {
@@ -59,7 +55,7 @@ public class VerificationCodeInput extends ViewGroup {
 
         childHPadding = (int) a.getDimension(R.styleable.vericationCodeInput_child_h_padding, 0);
         childVPadding = (int) a.getDimension(R.styleable.vericationCodeInput_child_v_padding, 0);
-        boxBgFocus =  a.getDrawable(R.styleable.vericationCodeInput_box_bg_focus);
+        boxBgFocus = a.getDrawable(R.styleable.vericationCodeInput_box_bg_focus);
         boxBgNormal = a.getDrawable(R.styleable.vericationCodeInput_box_bg_normal);
         inputType = a.getString(R.styleable.vericationCodeInput_inputType);
         boxWidth = (int) a.getDimension(R.styleable.vericationCodeInput_child_width, boxWidth);
@@ -81,7 +77,6 @@ public class VerificationCodeInput extends ViewGroup {
 
 
     }
-
 
 
     private void initViews() {
@@ -108,7 +103,6 @@ public class VerificationCodeInput extends ViewGroup {
             }
 
         };
-
 
 
         OnKeyListener onKeyListener = new OnKeyListener() {
@@ -141,18 +135,18 @@ public class VerificationCodeInput extends ViewGroup {
 
             if (TYPE_NUMBER.equals(inputType)) {
                 editText.setInputType(InputType.TYPE_CLASS_NUMBER);
-            } else if (TYPE_PASSWORD.equals(inputType)){
+            } else if (TYPE_PASSWORD.equals(inputType)) {
                 editText.setTransformationMethod(PasswordTransformationMethod.getInstance());
-            } else if (TYPE_TEXT.equals(inputType)){
+            } else if (TYPE_TEXT.equals(inputType)) {
                 editText.setInputType(InputType.TYPE_CLASS_TEXT);
-            } else if (TYPE_PHONE.equals(inputType)){
+            } else if (TYPE_PHONE.equals(inputType)) {
                 editText.setInputType(InputType.TYPE_CLASS_PHONE);
 
             }
             editText.setId(i);
             editText.setEms(1);
             editText.addTextChangedListener(textWatcher);
-            addView(editText,i);
+            addView(editText, i);
 
 
         }
@@ -162,8 +156,8 @@ public class VerificationCodeInput extends ViewGroup {
 
     private void backFocus() {
         int count = getChildCount();
-        EditText editText ;
-        for (int i = count-1; i>= 0; i--) {
+        EditText editText;
+        for (int i = count - 1; i >= 0; i--) {
             editText = (EditText) getChildAt(i);
             if (editText.getText().length() == 1) {
                 editText.requestFocus();
@@ -175,8 +169,8 @@ public class VerificationCodeInput extends ViewGroup {
 
     private void focus() {
         int count = getChildCount();
-        EditText editText ;
-        for (int i = 0; i< count; i++) {
+        EditText editText;
+        for (int i = 0; i < count; i++) {
             editText = (EditText) getChildAt(i);
             if (editText.getText().length() < 1) {
                 editText.requestFocus();
@@ -196,10 +190,10 @@ public class VerificationCodeInput extends ViewGroup {
     private void checkAndCommit() {
         StringBuilder stringBuilder = new StringBuilder();
         boolean full = true;
-        for (int i = 0 ;i < box; i++){
+        for (int i = 0; i < box; i++) {
             EditText editText = (EditText) getChildAt(i);
             String content = editText.getText().toString();
-            if ( content.length() == 0) {
+            if (content.length() == 0) {
                 full = false;
                 break;
             } else {
@@ -208,7 +202,7 @@ public class VerificationCodeInput extends ViewGroup {
 
         }
         Log.d(TAG, "checkAndCommit:" + stringBuilder.toString());
-        if (full){
+        if (full) {
 
             if (listener != null) {
                 listener.onComplete(stringBuilder.toString());
@@ -228,7 +222,7 @@ public class VerificationCodeInput extends ViewGroup {
         }
     }
 
-    public void setOnCompleteListener(Listener listener){
+    public void setOnCompleteListener(Listener listener) {
         this.listener = listener;
     }
 
@@ -237,7 +231,6 @@ public class VerificationCodeInput extends ViewGroup {
     public LayoutParams generateLayoutParams(AttributeSet attrs) {
         return new LinearLayout.LayoutParams(getContext(), attrs);
     }
-
 
 
     @Override
@@ -271,9 +264,6 @@ public class VerificationCodeInput extends ViewGroup {
         }
 
 
-
-
-
     }
 
     private int getScreenWidth() {
@@ -288,7 +278,7 @@ public class VerificationCodeInput extends ViewGroup {
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        Log.d(getClass().getName(), "onLayout width = " +  getMeasuredWidth());
+        Log.d(getClass().getName(), "onLayout width = " + getMeasuredWidth());
 
         int childCount = getChildCount();
 
@@ -309,7 +299,7 @@ public class VerificationCodeInput extends ViewGroup {
     }
 
     public interface Listener {
-       void onComplete(String content);
+        void onComplete(String content);
     }
 
 }
