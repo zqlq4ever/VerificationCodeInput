@@ -21,9 +21,8 @@
             android:orientation = "vertical">
             
             <TextView
-                android:layout_width = "match_parent"
+                android:layout_width = "wrap_content"
                 android:layout_height = "wrap_content"
-                android:background = "@color/colorAccent"
                 android:text = "系统样式："
                 />
             
@@ -31,7 +30,6 @@
                 android:id = "@+id/verificationCodeInput"
                 android:layout_width = "match_parent"
                 android:layout_height = "wrap_content"
-                android:layout_centerInParent = "true"
                 android:layout_marginBottom = "16dp"
                 ver:box = "4"
                 ver:child_h_padding = "5dp"
@@ -47,7 +45,6 @@
             <com.dalimao.corelibrary.VerificationCodeInput
                 android:layout_width = "wrap_content"
                 android:layout_height = "wrap_content"
-                android:layout_centerInParent = "true"
                 android:layout_marginBottom = "16dp"
                 android:background = "@color/colorAccent"
                 ver:box = "3"
@@ -64,14 +61,15 @@
                 />
             
             <com.dalimao.corelibrary.VerificationCodeInput
+                android:id="@+id/ver_number"
                 android:layout_width = "wrap_content"
                 android:layout_height = "wrap_content"
-                android:layout_centerInParent = "true"
                 android:layout_marginBottom = "16dp"
                 ver:box = "5"
                 ver:box_bg_focus = "@drawable/verification_edit_bg_focus"
                 ver:box_bg_normal = "@drawable/verification_edit_bg_normal"
                 ver:child_h_padding = "5dp"
+                ver:inputType = "number"
                 />
             
             <TextView
@@ -84,7 +82,6 @@
             <com.dalimao.corelibrary.VerificationCodeInput
                 android:layout_width = "wrap_content"
                 android:layout_height = "wrap_content"
-                android:layout_centerInParent = "true"
                 android:layout_marginBottom = "16dp"
                 ver:box = "5"
                 ver:box_bg_focus = "@drawable/verification_edit_bg_focus"
@@ -103,7 +100,6 @@
             <com.dalimao.corelibrary.VerificationCodeInput
                 android:layout_width = "wrap_content"
                 android:layout_height = "wrap_content"
-                android:layout_centerInParent = "true"
                 android:layout_marginBottom = "16dp"
                 ver:box = "5"
                 ver:box_bg_focus = "@drawable/verification_edit_bg_focus"
@@ -113,6 +109,9 @@
                 ver:child_width = "60dp"
                 ver:inputType = "password"
                 />
+        
         </LinearLayout>
+    
     </ScrollView>
+
 </LinearLayout>

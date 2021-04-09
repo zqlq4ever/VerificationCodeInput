@@ -14,7 +14,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        VerificationCodeInput input = (VerificationCodeInput) findViewById(R.id.verificationCodeInput);
+        VerificationCodeInput input = (VerificationCodeInput) findViewById(R.id.ver_number);
         input.setOnCompleteListener(new VerificationCodeInput.Listener() {
             @Override
             public void onComplete(String content) {
