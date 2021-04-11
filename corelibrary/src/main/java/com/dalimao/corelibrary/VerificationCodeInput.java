@@ -14,16 +14,13 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
-import android.text.TextWatcher;
-import android.text.method.PasswordTransformationMethod;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -36,17 +33,17 @@ public class VerificationCodeInput extends ViewGroup {
     private final static String TYPE_TEXT = "text";
     private final static String TYPE_PASSWORD = "password";
     private final static String TYPE_PHONE = "phone";
-
     private static final String TAG = "VerificationCodeInput";
+
     private int box = 4;
-    private int boxWidth = 120;
-    private int boxHeight = 120;
+    private int boxWidth = 70;
+    private int boxHeight = 70;
     private int childHPadding = 14;
     private int childVPadding = 14;
-    private String inputType = TYPE_PASSWORD;
+    private String inputType = TYPE_NUMBER;
     private Drawable boxBgFocus = null;
     private Drawable boxBgNormal = null;
-    private Listener listener;
+    private CompleteListener mCompleteListener;
 
 
     public VerificationCodeInput(Context context, AttributeSet attrs) {
@@ -61,106 +58,102 @@ public class VerificationCodeInput extends ViewGroup {
         boxWidth = (int) a.getDimension(R.styleable.vericationCodeInput_child_width, boxWidth);
         boxHeight = (int) a.getDimension(R.styleable.vericationCodeInput_child_height, boxHeight);
         a.recycle();
-        initViews();
+
+        initEditTexts();
     }
 
 
-    private void initViews() {
-        TextWatcher textWatcher = new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
+    OnFocusChangeListener onFocusChangeListener = new OnFocusChangeListener() {
+        @Override
+        public void onFocusChange(View v, boolean hasFocus) {
+            setBg((EditText) v, hasFocus);
+        }
+    };
 
 
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                if (s.length() == 0) {
-
-                } else {
-                    focus();
-                    checkAndCommit();
-                }
-            }
-        };
+    public static int dp2px(Context context, float dpValue) {
+        final float scale = context.getResources().getDisplayMetrics().density;
+        return (int) (dpValue * scale + 0.5f);
+    }
 
 
-        OnKeyListener onKeyListener = new OnKeyListener() {
-            @Override
-            public synchronized boolean onKey(View v, int keyCode, KeyEvent event) {
-                if (keyCode == KeyEvent.KEYCODE_DEL) {
-                    backFocus();
-                }
-                return false;
-            }
-        };
-
-
+    /**
+     * 初始化输入框
+     */
+    private void initEditTexts() {
         for (int i = 0; i < box; i++) {
-            EditText editText = new EditText(getContext());
-            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(boxWidth, boxHeight);
+            final EditText editText = new EditText(getContext());
+            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(dp2px(getContext(), boxWidth), dp2px(getContext(), boxHeight));
             layoutParams.bottomMargin = childVPadding;
             layoutParams.topMargin = childVPadding;
             layoutParams.leftMargin = childHPadding;
             layoutParams.rightMargin = childHPadding;
             layoutParams.gravity = Gravity.CENTER;
 
-            editText.setOnKeyListener(onKeyListener);
-            setBg(editText, false);
+            setBg(editText, i == 0);
+
+            editText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 45);
             editText.setTextColor(Color.BLACK);
             editText.setLayoutParams(layoutParams);
+            editText.setPadding(0, dp2px(getContext(), 10), 0, 0);
             editText.setGravity(Gravity.CENTER);
+            //  最多输入一个
             editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(1)});
+            editText.setInputType(InputType.TYPE_NULL);
 
-            if (TYPE_NUMBER.equals(inputType)) {
-                editText.setInputType(InputType.TYPE_CLASS_NUMBER);
-            } else if (TYPE_PASSWORD.equals(inputType)) {
-                editText.setTransformationMethod(PasswordTransformationMethod.getInstance());
-            } else if (TYPE_TEXT.equals(inputType)) {
-                editText.setInputType(InputType.TYPE_CLASS_TEXT);
-            } else if (TYPE_PHONE.equals(inputType)) {
-                editText.setInputType(InputType.TYPE_CLASS_PHONE);
-            }
+            editText.setOnFocusChangeListener(onFocusChangeListener);
             editText.setId(i);
             editText.setEms(1);
-            editText.addTextChangedListener(textWatcher);
             addView(editText, i);
         }
     }
 
+    /**
+     * 输入的结果
+     */
+    private final String[] nummbers = new String[4];
 
-    private void backFocus() {
-        int count = getChildCount();
-        EditText editText;
-        for (int i = count - 1; i >= 0; i--) {
-            editText = (EditText) getChildAt(i);
-            if (editText.getText().length() == 1) {
-                editText.requestFocus();
-                editText.setSelection(1);
-                return;
-            }
-        }
-    }
-
-
-    private void focus() {
+    /**
+     * 模拟软键盘输入
+     *
+     * @param number 选择的数字
+     */
+    public void insertNumber(String number) {
         int count = getChildCount();
         EditText editText;
         for (int i = 0; i < count; i++) {
             editText = (EditText) getChildAt(i);
-            if (editText.getText().length() < 1) {
-                editText.requestFocus();
-                return;
+            if (editText.isFocused()) {
+                nummbers[i] = number;
+
+                editText.setText("*");
+
+                //  下一个获取焦点
+                if (editText.isFocused() && editText.getText().length() == 1 && i < count - 1) {
+                    editText = (EditText) getChildAt(i + 1);
+                    editText.requestFocus();
+                }
+                break;
             }
+        }
+
+        StringBuilder stringBuilder = new StringBuilder();
+        for (String nummber : nummbers) {
+            stringBuilder.append(nummber);
+        }
+
+        if (stringBuilder.toString().length() == 4 && mCompleteListener != null) {
+            mCompleteListener.onComplete(stringBuilder.toString());
         }
     }
 
 
+    /**
+     * 设置 EditText 背景
+     *
+     * @param editText
+     * @param focus
+     */
     private void setBg(EditText editText, boolean focus) {
         if (boxBgNormal != null && !focus) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
@@ -174,46 +167,6 @@ public class VerificationCodeInput extends ViewGroup {
     }
 
 
-    private void checkAndCommit() {
-        StringBuilder stringBuilder = new StringBuilder();
-        boolean full = true;
-        for (int i = 0; i < box; i++) {
-            EditText editText = (EditText) getChildAt(i);
-            String content = editText.getText().toString();
-            if (content.length() == 0) {
-                full = false;
-                break;
-            } else {
-                stringBuilder.append(content);
-            }
-        }
-
-        Log.d(TAG, "checkAndCommit:" + stringBuilder.toString());
-
-        if (full) {
-            if (listener != null) {
-                listener.onComplete(stringBuilder.toString());
-                setEnabled(false);
-            }
-        }
-    }
-
-
-    @Override
-    public void setEnabled(boolean enabled) {
-        int childCount = getChildCount();
-        for (int i = 0; i < childCount; i++) {
-            View child = getChildAt(i);
-            child.setEnabled(enabled);
-        }
-    }
-
-
-    public void setOnCompleteListener(Listener listener) {
-        this.listener = listener;
-    }
-
-
     @Override
     public LayoutParams generateLayoutParams(AttributeSet attrs) {
         return new LinearLayout.LayoutParams(getContext(), attrs);
@@ -223,10 +176,12 @@ public class VerificationCodeInput extends ViewGroup {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+
         int parentWidth = getMeasuredWidth();
         if (parentWidth == LayoutParams.MATCH_PARENT) {
             parentWidth = getScreenWidth();
         }
+
         Log.d(getClass().getName(), "onMeasure width " + parentWidth);
 
         int count = getChildCount();
@@ -239,7 +194,7 @@ public class VerificationCodeInput extends ViewGroup {
             View child = getChildAt(0);
             int cWidth = child.getMeasuredWidth();
             if (parentWidth != LayoutParams.WRAP_CONTENT) {
-                // 重新计算 padding
+                //  重新计算 padding
                 childHPadding = (parentWidth - cWidth * count) / (count + 1);
             }
 
@@ -247,8 +202,11 @@ public class VerificationCodeInput extends ViewGroup {
 
             int maxH = cHeight + 2 * childVPadding;
             int maxW = (cWidth) * count + childHPadding * (count + 1);
-            setMeasuredDimension(resolveSize(maxW, widthMeasureSpec),
-                    resolveSize(maxH, heightMeasureSpec));
+
+            setMeasuredDimension(
+                    resolveSize(maxW, widthMeasureSpec),
+                    resolveSize(maxH, heightMeasureSpec)
+            );
         }
     }
 
@@ -280,7 +238,16 @@ public class VerificationCodeInput extends ViewGroup {
         }
     }
 
-    public interface Listener {
+
+    /**
+     * 设置完成事件
+     */
+    public void setOnCompleteListener(CompleteListener completeListener) {
+        this.mCompleteListener = completeListener;
+    }
+
+
+    public interface CompleteListener {
         void onComplete(String content);
     }
 
